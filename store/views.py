@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Category, Product
-
+from django.shortcuts import redirect
+from .cart import Cart
+from .models import Product
 # Home page showing all categories
 def home(request):
     categories = Category.objects.all()
@@ -16,4 +18,23 @@ def product_list(request, category_slug):
 def product_detail(request, product_slug):
     product = get_object_or_404(Product, slug=product_slug)
     return render(request, 'store/product_detail.html', {'product': product})
+
+# Add a product to the cart
+def add_to_cart(request, product_id):
+    cart = Cart(request)
+    product = Product.objects.get(id=product_id)
+    cart.add(product=product)
+    return redirect('store:cart_detail')
+
+# Remove a product from the cart
+def remove_from_cart(request, product_id):
+    cart = Cart(request)
+    product = Product.objects.get(id=product_id)
+    cart.remove(product)
+    return redirect('store:cart_detail')
+
+# Display the cart
+def cart_detail(request):
+    cart = Cart(request)
+    return render(request, 'store/cart_detail.html', {'cart': cart})
 
