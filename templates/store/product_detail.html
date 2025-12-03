@@ -16,4 +16,10 @@
         <a href="{% url 'store:product_list' product.category.slug %}" class="btn btn-secondary ms-2">Back to {{ product.category.name }}</a>
     </div>
 </div>
+<form action="{% url 'store:add_to_cart' product.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Add to Cart</button>
+</form>
+<a href="{% url 'store:product_list' product.category.slug %}" class="btn btn-secondary ms-2">Back</a>
+
 {% endblock %}
