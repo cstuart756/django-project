@@ -1,15 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ product.name }} - Store</title>
-</head>
-<body>
-    <h1>{{ product.name }}</h1>
-    <p>{{ product.description }}</p>
-    <p>Price: ${{ product.price }}</p>
-    {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}">
-    {% endif %}
-    <a href="{% url 'store:product_list' product.category.slug %}">Back to {{ product.category.name }}</a>
-</body>
-</html>
+{% extends 'store/base.html' %}
+{% block title %}{{ product.name }} - My Store{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h1>{{ product.name }}</h1>
+        <p>{{ product.description }}</p>
+        <p class="fw-bold">Price: ${{ product.price }}</p>
+        <button class="btn btn-success">Add to Cart</button>
+        <a href="{% url 'store:product_list' product.category.slug %}" class="btn btn-secondary ms-2">Back to {{ product.category.name }}</a>
+    </div>
+</div>
+{% endblock %}
