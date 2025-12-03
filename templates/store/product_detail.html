@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ category.name }} - Store</title>
+    <title>{{ product.name }} - Store</title>
 </head>
 <body>
-    <h1>{{ category.name }}</h1>
-    <ul>
-        {% for product in products %}
-        <li>
-            <a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a>
-            - ${{ product.price }}
-        </li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'store:home' %}">Back to Home</a>
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description }}</p>
+    <p>Price: ${{ product.price }}</p>
+    {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% endif %}
+    <a href="{% url 'store:product_list' product.category.slug %}">Back to {{ product.category.name }}</a>
 </body>
 </html>
-
