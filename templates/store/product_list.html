@@ -65,4 +65,15 @@
   </ul>
 </nav>
 
+<h5 class="card-title">
+    <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+</h5>
+
+{% if product.image %}
+<a href="{% url 'product_detail' product.id %}">
+    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+</a>
+{% endif %}
+
+
 {% endblock %}
