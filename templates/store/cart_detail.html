@@ -1,39 +1,48 @@
 {% extends 'store/base.html' %}
-{% block title %}Shopping Cart - My Store{% endblock %}
+{% block title %}Your Cart{% endblock %}
 
 {% block content %}
-<h1>Shopping Cart</h1>
-{% if cart.cart %}
-<table class="table">
+<h1>Your Cart</h1>
+{% if cart_items %}
+<table class="table mt-3">
     <thead>
         <tr>
             <th>Product</th>
-            <th>Price</th>
             <th>Quantity</th>
-            <th>Total</th>
-            <th>Action</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for item in cart %}
+        {% for item in cart_items %}
         <tr>
             <td>{{ item.product.name }}</td>
-            <td>${{ item.price }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>${{ item.total_price }}</td>
             <td>
-                <a href="{% url 'store:remove_from_cart' item.product.id %}" class="btn btn-danger btn-sm">Remove</a>
-                <a href="{% url 'store:checkout' %}" class="btn btn-success">Proceed to Checkout</a>
-
+                <form method="post" action="{% url 'cart_update' item.product.id %}">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width:80px;">
+                    <input type="hidden" name="action" value="update">
+                    <button type="submit" class="btn btn-sm btn-primary mt-1">Update</button>
+                </form>
+            </td>
+            <td>${{ item.price }}</td>
+            <td>${{ item.subtotal }}</td>
+            <td>
+                <form method="post" action="{% url 'cart_update' item.product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="remove">
+                    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-<p class="fw-bold">Total: ${{ cart.get_total_price }}</p>
-<a href="#" class="btn btn-success">Proceed to Checkout</a>
+<h3>Total: ${{ total }}</h3>
+<a href="{% url 'checkout' %}" class="btn btn-success">Proceed to Checkout</a>
 {% else %}
 <p>Your cart is empty.</p>
+<a href="{% url 'store:home' %}" class="btn btn-primary">Continue Shopping</a>
 {% endif %}
-<a href="{% url 'store:home' %}" class="btn btn-secondary mt-3">Continue Shopping</a>
 {% endblock %}
