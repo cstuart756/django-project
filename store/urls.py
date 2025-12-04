@@ -30,3 +30,6 @@ urlpatterns += [
     path('cart/', views.cart_detail, name='cart_detail'),
     path('cart/update/<int:product_id>/', views.cart_update, name='cart_update'),
 ]
+urlpatterns += [
+    path('checkout/success/', views.checkout_success, name='checkout_success'),
+]

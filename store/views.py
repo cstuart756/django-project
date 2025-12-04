@@ -137,7 +137,10 @@ def checkout(request):
             return render(request, 'store/checkout_success.html', {'order': order})
     else:
         form = OrderCreateForm()
-
+def checkout_success(request):
+    cart = Cart(request)
+    cart.clear()
+    return render(request, 'store/checkout_success.html')
     return render(request, 'store/checkout.html', {'cart': cart, 'form': form})
 from django.contrib.auth.decorators import login_required
 
