@@ -53,10 +53,18 @@ def home(request):
     return render(request, 'store/home.html', {'categories': categories})
 
 # Product listing by category
-def product_list(request, category_slug):
-    category = get_object_or_404(Category, slug=category_slug)
-    products = category.products.filter(available=True)
-    return render(request, 'store/product_list.html', {'category': category, 'products': products})
+def product_list(request, category_slug=None):
+    category = None
+    products = Product.objects.all()
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(category=category)
+    categories = Category.objects.all()
+    return render(request, 'store/product_list.html', {
+        'category': category,
+        'categories': categories,
+        'products': products
+    })
 
 # Product detail page
 def product_detail(request, product_slug):
