@@ -15,15 +15,18 @@
         </tr>
     </thead>
     <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
-            <td>{{ order.paid }}</td>
-            <td>{{ order.orderitem_set.count }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+    {% for order in orders %}
+    <tr>
+        <td>
+            <a href="{% url 'order_detail' order.id %}">{{ order.id }}</a>
+        </td>
+        <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+        <td>{{ order.paid }}</td>
+        <td>{{ order.orderitem_set.count }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+
 </table>
 {% else %}
 <p>You have no orders yet.</p>
