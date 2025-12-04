@@ -81,4 +81,17 @@ def search_products(request):
         'categories': categories,
         'search_query': query,
         'page_obj': page_obj
-    })
+    }) from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+from django.shortcuts import redirect, render
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your account has been created! You can now log in.')
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'store/register.html', {'form': form})
