@@ -25,15 +25,13 @@ class Product(models.Model):
 
 # Customer Order model
 class Order(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    paid = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    total_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    completed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Order {self.id}'
+        return f'Order {self.id} by {self.user.username if self.user else "Guest"}'
 
 from django.contrib.auth.models import User
 
