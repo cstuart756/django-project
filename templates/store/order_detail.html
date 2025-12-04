@@ -1,0 +1,32 @@
+{% extends 'store/base.html' %}
+{% block title %}Order {{ order.id }} - My Store{% endblock %}
+
+{% block content %}
+<h1>Order #{{ order.id }}</h1>
+<p>Date: {{ order.created_at|date:"Y-m-d H:i" }}</p>
+<p>Paid: {{ order.paid }}</p>
+
+<h4 class="mt-4">Products in this Order:</h4>
+<table class="table mt-2">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>${{ item.price }}</td>
+            <td>${{ item.quantity|multiply:item.price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'profile' %}" class="btn btn-secondary mt-3">Back to Profile</a>
+{% endblock %}
