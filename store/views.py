@@ -95,3 +95,33 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'store/register.html', {'form': form})
+def checkout(request):
+    cart = Cart(request)
+    if not cart.cart:
+        return redirect('product_list')
+
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            if request.user.is_authenticated:
+                order.user = request.user
+            order.save()
+
+            # Link items to order
+            for item_id, item in cart.cart.items():
+                product = get_object_or_404(Product, id=item_id)
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=item['quantity'],
+                    price=product.price
+                )
+
+            # Stripe checkout logic here...
+            cart.clear()
+            return redirect('checkout_success')
+    else:
+        form = OrderCreateForm()
+
+    return render(request, 'store/checkout.html', {'cart': cart, 'form': form})
