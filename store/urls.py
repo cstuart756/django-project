@@ -26,3 +26,7 @@ urlpatterns += [
 urlpatterns += [
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
 ]
+urlpatterns += [
+    path('cart/', views.cart_detail, name='cart_detail'),
+    path('cart/update/<int:product_id>/', views.cart_update, name='cart_update'),
+]
