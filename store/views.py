@@ -1,133 +1,47 @@
-from django.core.paginator import Paginatorfrom django.shortcuts import render, get_object_or_404
-from .models import Category, Product
-from django.shortcuts import redirect
-from .cart import Cart
+from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator
 from .models import Product
-# Home page showing all categories
-from django.db.models import Qdef home(request):
-    categories = Category.objects.all()
-    return render(request, 'store/home.html', {'categories': categories})
-def search_products(request):
-    query = request.GET.get('q', '')
-    products = Product.objects.filter(
-        Q(name__icontains=query) | Q(description__icontains=query)
-    )
-    categories = Category.objects.all()
-    return render(request, 'store/product_list.html', {
-        'products': products,
-        'categories': categories,
-        'search_query': query
-    })
-# Product listing by category
-def product_list(request, category_slug):
-    category = get_object_or_404(Category, slug=category_slug)
-    products = category.products.filter(available=True)
-    return render(request, 'store/product_list.html', {'category': category, 'products': products})
+from .forms import ProductSearchForm, ReviewForm
 
-# Product detail page
-def product_detail(request, product_id):
-    product = get_object_or_404(Product, slug=product_slug)
-    return render(request, 'store/product_detail.html', {'product': product})
-
-# Add a product to the cart
-def add_to_cart(request, product_id):
-    cart = Cart(request)
-    product = Product.objects.get(id=product_id)
-    cart.add(product=product)
-    return redirect('store:cart_detail')
-
-# Remove a product from the cart
-def remove_from_cart(request, product_id):
-    cart = Cart(request)
-    product = Product.objects.get(id=product_id)
-    cart.remove(product)
-    return redirect('store:cart_detail')
-
-# Display the cart
-def cart_detail(request):
-    cart = Cart(request)
-    return render(request, 'store/cart_detail.html', {'cart': cart})
-
-ef paginate_products(request, products, per_page=6):
-    paginator = Paginator(products, per_page)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return page_obj
-
-def product_list(request, category_slug=None):
-    category = None
+def product_list(request):
     products = Product.objects.all()
-    if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
-        products = products.filter(category=category)
-    categories = Category.objects.all()
+    form = ProductSearchForm(request.GET)
 
-    page_obj = paginate_products(request, products)
-    return render(request, 'store/product_list.html', {
-        'category': category,
-        'categories': categories,
-        'page_obj': page_obj
-    })
+    if form.is_valid():
+        if form.cleaned_data['query']:
+            products = products.filter(name__icontains=form.cleaned_data['query'])
+        if form.cleaned_data['category']:
+            products = products.filter(category=form.cleaned_data['category'])
+        if form.cleaned_data['min_price']:
+            products = products.filter(price__gte=form.cleaned_data['min_price'])
+        if form.cleaned_data['max_price']:
+            products = products.filter(price__lte=form.cleaned_data['max_price'])
 
-def search_products(request):
-    query = request.GET.get('q', '')
-    products = Product.objects.filter(
-        Q(name__icontains=query) | Q(description__icontains=query)
-    )
-    categories = Category.objects.all()
-    page_obj = paginate_products(request, products)
+    paginator = Paginator(products, 6)
+    page = request.GET.get('page')
+    products = paginator.get_page(page)
+
     return render(request, 'store/product_list.html', {
         'products': products,
-        'categories': categories,
-        'search_query': query,
-        'page_obj': page_obj
-    }) from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
-from django.shortcuts import redirect, render
+        'form': form
+    })
 
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your account has been created! You can now log in.')
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'store/register.html', {'form': form})
-def checkout(request):
-    cart = Cart(request)
-    if not cart.cart:
-        return redirect('product_list')
+
+def product_detail(request, slug):
+    product = get_object_or_404(Product, slug=slug)
 
     if request.method == 'POST':
-        form = OrderCreateForm(request.POST)
+        form = ReviewForm(request.POST)
         if form.is_valid():
-            order = form.save(commit=False)
-            if request.user.is_authenticated:
-                order.user = request.user
-            order.save()
-
-            # Link items to order
-            for item_id, item in cart.cart.items():
-                product = get_object_or_404(Product, id=item_id)
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=item['quantity'],
-                    price=product.price
-                )
-
-            # Stripe checkout logic here...
-            cart.clear()
-            return redirect('checkout_success')
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            return redirect('product_detail', slug=slug)
     else:
-        form = OrderCreateForm()
+        form = ReviewForm()
 
-    return render(request, 'store/checkout.html', {'cart': cart, 'form': form})
-from django.contrib.auth.decorators import login_required
-
-@login_required
-def my_orders(request):
-    orders = Order.objects.filter(user=request.user, completed=True).order_by('-created_at')
-    return render(request, 'store/my_orders.html', {'orders': orders})
+    return render(request, 'store/product_detail.html', {
+        'product': product,
+        'form': form
+    })

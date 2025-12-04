@@ -1,55 +1,32 @@
 from django.db import models
-
-# Category for products
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
-
-    def __str__(self):
-        return self.name
-
-# Product model
-class Product(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
-    available = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
-# Customer Order model
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    total_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-    completed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'Order {self.id} by {self.user.username if self.user else "Guest"}'
-
 from django.contrib.auth.models import User
 
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.EmailField()
-    paid = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Category(models.Model):
+    name = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'Order {self.id}'
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+        return self.name
+
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    slug = models.SlugField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField()
+
+    def average_rating(self):
+        reviews = self.review_set.all()
+        if reviews:
+            return round(sum(r.rating for r in reviews) / reviews.count(), 1)
+        return 0
 
     def __str__(self):
-        return f'{self.quantity} x {self.product.name}'
+        return self.name
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    comment = models.TextField()

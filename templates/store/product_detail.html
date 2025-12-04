@@ -1,27 +1,19 @@
-{% extends 'store/base.html' %}
-{% block title %}{{ product.name }}{% endblock %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        {% if product.image %}
-        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
-        {% endif %}
-    </div>
-    <div class="col-md-6">
-        <h2>{{ product.name }}</h2>
-        <p>${{ product.price }}</p>
-        <p>{{ product.description }}</p>
+<h2>{{ product.name }}</h2>
+<p>{{ product.description }}</p>
+<p>${{ product.price }}</p>
 
-        <form method="post" action="{% url 'cart_update' product.id %}">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="quantity" class="form-label">Quantity:</label>
-                <input type="number" name="quantity" id="quantity" value="1" min="1" class="form-control" style="width:100px;">
-            </div>
-            <input type="hidden" name="action" value="update">
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
-        </form>
-    </div>
-</div>
+<h3>Reviews</h3>
+{% for review in product.review_set.all %}
+    <p>{{ review.user }}: {{ review.rating }}/5</p>
+    <p>{{ review.comment }}</p>
+{% endfor %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Leave Review</button>
+</form>
 {% endblock %}
