@@ -1,5 +1,5 @@
 {% extends 'store/base.html' %}
-{% block title %}{{ product.name }} - My Store{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -9,17 +9,19 @@
         {% endif %}
     </div>
     <div class="col-md-6">
-        <h1>{{ product.name }}</h1>
+        <h2>{{ product.name }}</h2>
+        <p>${{ product.price }}</p>
         <p>{{ product.description }}</p>
-        <p class="fw-bold">Price: ${{ product.price }}</p>
-        <button class="btn btn-success">Add to Cart</button>
-        <a href="{% url 'store:product_list' product.category.slug %}" class="btn btn-secondary ms-2">Back to {{ product.category.name }}</a>
+
+        <form method="post" action="{% url 'cart_update' product.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity:</label>
+                <input type="number" name="quantity" id="quantity" value="1" min="1" class="form-control" style="width:100px;">
+            </div>
+            <input type="hidden" name="action" value="update">
+            <button type="submit" class="btn btn-primary">Add to Cart</button>
+        </form>
     </div>
 </div>
-<form action="{% url 'store:add_to_cart' product.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-success">Add to Cart</button>
-</form>
-<a href="{% url 'store:product_list' product.category.slug %}" class="btn btn-secondary ms-2">Back</a>
-
 {% endblock %}
