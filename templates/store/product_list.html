@@ -1,8 +1,17 @@
 {% extends 'store/base.html' %}
-{% block title %}{{ category.name }} - My Store{% endblock %}
+{% block title %}Products{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">{{ category.name }}</h1>
+<h1>Products{% if category %} in {{ category.name }}{% endif %}</h1>
+
+<div class="mb-3">
+    <strong>Categories:</strong>
+    <a href="{% url 'product_list' %}">All</a>
+    {% for cat in categories %}
+        | <a href="{% url 'product_list_by_category' cat.slug %}">{{ cat.name }}</a>
+    {% endfor %}
+</div>
+
 <div class="row">
     {% for product in products %}
     <div class="col-md-4 mb-3">
@@ -13,11 +22,10 @@
             <div class="card-body">
                 <h5 class="card-title">{{ product.name }}</h5>
                 <p class="card-text">${{ product.price }}</p>
-                <a href="{% url 'store:product_detail' product.slug %}" class="btn btn-primary">View Details</a>
+                <a href="#" class="btn btn-primary">Add to Cart</a>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
-<a href="{% url 'store:home' %}" class="btn btn-secondary mt-3">Back to Home</a>
 {% endblock %}
