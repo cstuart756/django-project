@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
+from .models import Productfrom django.shortcuts import render, get_object_or_404
 from .models import Category, Product
 from django.shortcuts import redirect
 from .cart import Cart
@@ -108,3 +109,32 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     items = order.orderitem_set.all()  # Get all items for this order
     return render(request, 'store/order_detail.html', {'order': order, 'items': items})
+def cart_detail(request):
+    cart = Cart(request)
+    products = []
+    total = 0
+    for item_id, item in cart.cart.items():
+        product = get_object_or_404(Product, id=item_id)
+        quantity = item['quantity']
+        price = float(item['price'])
+        subtotal = quantity * price
+        total += subtotal
+        products.append({
+            'product': product,
+            'quantity': quantity,
+            'price': price,
+            'subtotal': subtotal
+        })
+    return render(request, 'store/cart_detail.html', {'cart_items': products, 'total': total})
+
+def cart_update(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = Cart(request)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        quantity = int(request.POST.get('quantity', 1))
+        if action == 'update':
+            cart.add(product, quantity=quantity, override_quantity=True)
+        elif action == 'remove':
+            cart.remove(product)
+    return redirect('store:cart_detail')
