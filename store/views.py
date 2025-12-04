@@ -4,6 +4,49 @@ from .models import Category, Product
 from django.shortcuts import redirect
 from .cart import Cart
 from .models import Product
+import stripe
+from django.conf import settings
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def checkout(request):
+    cart = Cart(request)
+    if not cart.cart:
+        return redirect('store:home')
+
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            if request.user.is_authenticated:
+                order.user = request.user
+            order.save()
+
+            # Create Stripe session
+            line_items = []
+            for item_id, item in cart.cart.items():
+                product = get_object_or_404(Product, id=item_id)
+                line_items.append({
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {'name': product.name},
+                        'unit_amount': int(product.price * 100),  # cents
+                    },
+                    'quantity': item['quantity'],
+                })
+
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=line_items,
+                mode='payment',
+                success_url=request.build_absolute_uri('/checkout/success/'),
+                cancel_url=request.build_absolute_uri('/cart/'),
+            )
+            return redirect(session.url, code=303)
+    else:
+        form = OrderCreateForm()
+
+    return render(request, 'store/checkout.html', {'cart': cart, 'form': form, 'STRIPE_PUBLIC_KEY': settings.STRIPE_PUBLIC_KEY})
 # Home page showing all categories
 def home(request):
     categories = Category.objects.all()
