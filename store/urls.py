@@ -23,3 +23,6 @@ urlpatterns = [
 urlpatterns += [
     path('profile/', views.profile, name='profile'),
 ]
+urlpatterns += [
+    path('order/<int:order_id>/', views.order_detail, name='order_detail'),
+]
