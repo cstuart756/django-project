@@ -125,3 +125,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
 
+# Redirect URLs after login/logout
+LOGIN_REDIRECT_URL = 'store:home'
+LOGOUT_REDIRECT_URL = 'store:home'
+
+# Optional: customize session expiry
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
