@@ -76,3 +76,22 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'store/register.html', {'form': form})
 
+def checkout(request):
+    cart = Cart(request)
+    if not cart.cart:
+        return redirect('store:home')
+
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            if request.user.is_authenticated:
+                order.user = request.user
+            order.paid = True  # For now, mark as paid
+            order.save()
+            cart.clear()
+            return render(request, 'store/checkout_success.html', {'order': order})
+    else:
+        form = OrderCreateForm()
+
+    return render(request, 'store/checkout.html', {'cart': cart, 'form': form})
