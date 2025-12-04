@@ -13,6 +13,11 @@
 </head>
 <body>
     <!-- Navbar -->
+    <form class="d-flex" method="get" action="{% url 'search_products' %}">
+    <input class="form-control me-2" type="search" placeholder="Search" name="q" value="{{ search_query|default:'' }}">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'store:home' %}">My Store</a>
