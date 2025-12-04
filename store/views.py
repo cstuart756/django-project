@@ -101,3 +101,10 @@ from django.contrib.auth.decorators import login_required
 def profile(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'store/profile.html', {'orders': orders})
+from django.shortcuts import get_object_or_404
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    items = order.orderitem_set.all()  # Get all items for this order
+    return render(request, 'store/order_detail.html', {'order': order, 'items': items})
