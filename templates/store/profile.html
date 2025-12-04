@@ -1,0 +1,31 @@
+{% extends 'store/base.html' %}
+{% block title %}Profile - My Store{% endblock %}
+
+{% block content %}
+<h1>{{ user.username }}'s Profile</h1>
+<h4 class="mt-4">Order History</h4>
+{% if orders %}
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Paid</th>
+            <th>Total Items</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ order.paid }}</td>
+            <td>{{ order.orderitem_set.count }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>You have no orders yet.</p>
+{% endif %}
+{% endblock %}
