@@ -33,3 +33,7 @@ urlpatterns += [
 urlpatterns += [
     path('checkout/success/', views.checkout_success, name='checkout_success'),
 ]
+urlpatterns += [
+    path('products/', views.product_list, name='product_list'),
+    path('products/<slug:category_slug>/', views.product_list, name='product_list_by_category'),
+]
