@@ -21,20 +21,23 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+    {% if user.is_authenticated %}
     <li class="nav-item">
-        <a class="nav-link" href="{% url 'store:home' %}">Home</a>
+        <a class="nav-link" href="#">Hi, {{ user.username }}</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link position-relative" href="{% url 'store:cart_detail' %}">
-            <i class="bi bi-cart-fill"></i> Cart
-            {% if cart_count %}
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ cart_count }}
-            </span>
-            {% endif %}
-        </a>
+        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
     </li>
+    {% else %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'login' %}">Login</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'register' %}">Register</a>
+    </li>
+    {% endif %}
 </ul>
+
 
             </div>
         </div>
