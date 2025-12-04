@@ -38,3 +38,26 @@ def cart_detail(request):
     cart = Cart(request)
     return render(request, 'store/cart_detail.html', {'cart': cart})
 
+from django.db.models import Q
+
+def home(request):
+    categories = Category.objects.all()
+    products = Product.objects.all()
+
+    # Search query
+    query = request.GET.get('q')
+    if query:
+        products = products.filter(Q(name__icontains=query) | Q(description__icontains=query))
+
+    # Category filter
+    category_slug = request.GET.get('category')
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+
+    context = {
+        'categories': categories,
+        'products': products,
+        'selected_category': category_slug,
+        'query': query
+    }
+    return render(request, 'store/home.html', context)
