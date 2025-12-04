@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginatorfrom django.shortcuts import render, get_object_or_404
 from .models import Category, Product
 from django.shortcuts import redirect
 from .cart import Cart
@@ -48,3 +48,37 @@ def cart_detail(request):
     cart = Cart(request)
     return render(request, 'store/cart_detail.html', {'cart': cart})
 
+ef paginate_products(request, products, per_page=6):
+    paginator = Paginator(products, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return page_obj
+
+def product_list(request, category_slug=None):
+    category = None
+    products = Product.objects.all()
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(category=category)
+    categories = Category.objects.all()
+
+    page_obj = paginate_products(request, products)
+    return render(request, 'store/product_list.html', {
+        'category': category,
+        'categories': categories,
+        'page_obj': page_obj
+    })
+
+def search_products(request):
+    query = request.GET.get('q', '')
+    products = Product.objects.filter(
+        Q(name__icontains=query) | Q(description__icontains=query)
+    )
+    categories = Category.objects.all()
+    page_obj = paginate_products(request, products)
+    return render(request, 'store/product_list.html', {
+        'products': products,
+        'categories': categories,
+        'search_query': query,
+        'page_obj': page_obj
+    })
